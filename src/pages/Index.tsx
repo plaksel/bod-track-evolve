@@ -4,11 +4,21 @@ import { AddMeasurementForm } from "@/components/AddMeasurementForm";
 import { ProgressChart } from "@/components/ProgressChart";
 import { MeasurementFilter } from "@/components/MeasurementFilter";
 import { Activity, Ruler, Heart, Zap, Target, Dumbbell, Flame } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface MeasurementEntry {
   id: string;
   date: string;
   measurements: Record<string, number>;
+}
+
+interface DatabaseMeasurement {
+  id: string;
+  user_id: string;
+  measurement_type: string;
+  value: number;
+  created_at: string;
 }
 
 const measurementIcons = {
@@ -22,17 +32,61 @@ const measurementIcons = {
 };
 
 const Index = () => {
+  const { toast } = useToast();
   const [measurements, setMeasurements] = useState<MeasurementEntry[]>([]);
   const [selectedMeasurements, setSelectedMeasurements] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load data from localStorage on mount
+  // Load data from Supabase on mount
   useEffect(() => {
+    loadMeasurements();
+  }, []);
+
+  const loadMeasurements = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('measurements')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading measurements:', error);
+        toast({
+          title: "Error loading data",
+          description: "Failed to load your measurements. Using offline mode.",
+          variant: "destructive"
+        });
+        // Fallback to localStorage
+        loadFromLocalStorage();
+        return;
+      }
+
+      // Group measurements by created_at date to match existing structure
+      const groupedData = groupMeasurementsByDate(data || []);
+      setMeasurements(groupedData);
+      
+      // Set default selected measurements
+      if (groupedData.length > 0) {
+        const allMeasurements = new Set<string>();
+        groupedData.forEach((entry: MeasurementEntry) => {
+          Object.keys(entry.measurements).forEach(key => allMeasurements.add(key));
+        });
+        setSelectedMeasurements(Array.from(allMeasurements));
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      loadFromLocalStorage();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
     const savedMeasurements = localStorage.getItem('fitness-measurements');
     if (savedMeasurements) {
       const parsed = JSON.parse(savedMeasurements);
       setMeasurements(parsed);
       
-      // Set default selected measurements
       if (parsed.length > 0) {
         const allMeasurements = new Set<string>();
         parsed.forEach((entry: MeasurementEntry) => {
@@ -41,28 +95,95 @@ const Index = () => {
         setSelectedMeasurements(Array.from(allMeasurements));
       }
     }
-  }, []);
+  };
 
-  // Save to localStorage whenever measurements change
-  useEffect(() => {
-    localStorage.setItem('fitness-measurements', JSON.stringify(measurements));
-  }, [measurements]);
+  const groupMeasurementsByDate = (data: DatabaseMeasurement[]): MeasurementEntry[] => {
+    const grouped = data.reduce((acc, measurement) => {
+      const date = measurement.created_at;
+      if (!acc[date]) {
+        acc[date] = {
+          id: crypto.randomUUID(),
+          date,
+          measurements: {}
+        };
+      }
+      acc[date].measurements[measurement.measurement_type] = measurement.value;
+      return acc;
+    }, {} as Record<string, MeasurementEntry>);
 
-  const handleAddMeasurement = (newMeasurements: Record<string, number>) => {
-    const entry: MeasurementEntry = {
-      id: crypto.randomUUID(),
-      date: new Date().toISOString(),
-      measurements: newMeasurements
-    };
-    
-    setMeasurements(prev => [...prev, entry]);
-    
-    // Add new measurements to selected if not already there
-    const newKeys = Object.keys(newMeasurements);
-    setSelectedMeasurements(prev => {
-      const updated = new Set([...prev, ...newKeys]);
-      return Array.from(updated);
-    });
+    return Object.values(grouped).sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  };
+
+  const handleAddMeasurement = async (newMeasurements: Record<string, number>) => {
+    try {
+      const measurementDate = new Date().toISOString();
+      
+      // Insert measurements into Supabase
+      const measurementInserts = Object.entries(newMeasurements).map(([type, value]) => ({
+        measurement_type: type,
+        value: value,
+        created_at: measurementDate,
+        user_id: '00000000-0000-0000-0000-000000000000' // Temporary user_id for now
+      }));
+
+      const { error } = await supabase
+        .from('measurements')
+        .insert(measurementInserts);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
+      const entry: MeasurementEntry = {
+        id: crypto.randomUUID(),
+        date: measurementDate,
+        measurements: newMeasurements
+      };
+      
+      setMeasurements(prev => [...prev, entry]);
+      
+      // Add new measurements to selected if not already there
+      const newKeys = Object.keys(newMeasurements);
+      setSelectedMeasurements(prev => {
+        const updated = new Set([...prev, ...newKeys]);
+        return Array.from(updated);
+      });
+
+      toast({
+        title: "Measurements saved!",
+        description: "Your progress has been recorded to the cloud.",
+      });
+
+    } catch (error) {
+      console.error('Error saving measurements:', error);
+      toast({
+        title: "Error saving measurements",
+        description: "Saved locally instead. Data will sync when connection is restored.",
+        variant: "destructive"
+      });
+      
+      // Fallback to localStorage
+      const entry: MeasurementEntry = {
+        id: crypto.randomUUID(),
+        date: new Date().toISOString(),
+        measurements: newMeasurements
+      };
+      
+      setMeasurements(prev => {
+        const updated = [...prev, entry];
+        localStorage.setItem('fitness-measurements', JSON.stringify(updated));
+        return updated;
+      });
+      
+      const newKeys = Object.keys(newMeasurements);
+      setSelectedMeasurements(prev => {
+        const updated = new Set([...prev, ...newKeys]);
+        return Array.from(updated);
+      });
+    }
   };
 
   const handleToggleMeasurement = (measurement: string) => {
