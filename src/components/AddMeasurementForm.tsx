@@ -8,12 +8,15 @@ import { Plus } from "lucide-react";
 
 interface MeasurementData {
   chest: string;
-  biceps: string;
+  biceps_left: string;
+  biceps_right: string;
   waist: string;
-  thighs: string;
+  thighs_left: string;
+  thighs_right: string;
   hips: string;
   neck: string;
-  forearms: string;
+  forearms_left: string;
+  forearms_right: string;
 }
 
 interface AddMeasurementFormProps {
@@ -24,12 +27,15 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
   const { toast } = useToast();
   const [measurements, setMeasurements] = useState<MeasurementData>({
     chest: '',
-    biceps: '',
+    biceps_left: '',
+    biceps_right: '',
     waist: '',
-    thighs: '',
+    thighs_left: '',
+    thighs_right: '',
     hips: '',
     neck: '',
-    forearms: ''
+    forearms_left: '',
+    forearms_right: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -60,12 +66,15 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
     // Reset form
     setMeasurements({
       chest: '',
-      biceps: '',
+      biceps_left: '',
+      biceps_right: '',
       waist: '',
-      thighs: '',
+      thighs_left: '',
+      thighs_right: '',
       hips: '',
       neck: '',
-      forearms: ''
+      forearms_left: '',
+      forearms_right: ''
     });
 
     toast({
@@ -83,12 +92,15 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
 
   const fields = [
     { key: 'chest' as keyof MeasurementData, label: 'Chest', placeholder: 'e.g., 102.5' },
-    { key: 'biceps' as keyof MeasurementData, label: 'Biceps', placeholder: 'e.g., 38.2' },
+    { key: 'biceps_left' as keyof MeasurementData, label: 'Biceps (Left)', placeholder: 'e.g., 38.2' },
+    { key: 'biceps_right' as keyof MeasurementData, label: 'Biceps (Right)', placeholder: 'e.g., 38.2' },
     { key: 'waist' as keyof MeasurementData, label: 'Waist', placeholder: 'e.g., 85.0' },
-    { key: 'thighs' as keyof MeasurementData, label: 'Thighs', placeholder: 'e.g., 62.1' },
+    { key: 'thighs_left' as keyof MeasurementData, label: 'Thighs (Left)', placeholder: 'e.g., 62.1' },
+    { key: 'thighs_right' as keyof MeasurementData, label: 'Thighs (Right)', placeholder: 'e.g., 62.1' },
     { key: 'hips' as keyof MeasurementData, label: 'Hips', placeholder: 'e.g., 95.3' },
     { key: 'neck' as keyof MeasurementData, label: 'Neck', placeholder: 'e.g., 40.2' },
-    { key: 'forearms' as keyof MeasurementData, label: 'Forearms', placeholder: 'e.g., 32.1' }
+    { key: 'forearms_left' as keyof MeasurementData, label: 'Forearms (Left)', placeholder: 'e.g., 32.1' },
+    { key: 'forearms_right' as keyof MeasurementData, label: 'Forearms (Right)', placeholder: 'e.g., 32.1' }
   ];
 
   return (

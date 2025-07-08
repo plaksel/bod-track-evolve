@@ -15,12 +15,15 @@ interface ProgressChartProps {
 
 const measurementColors = {
   chest: '#10b981',
-  biceps: '#3b82f6', 
+  biceps_left: '#3b82f6', 
+  biceps_right: '#06b6d4',
   waist: '#f59e0b',
-  thighs: '#ef4444',
+  thighs_left: '#ef4444',
+  thighs_right: '#ec4899',
   hips: '#8b5cf6',
   neck: '#06b6d4',
-  forearms: '#f97316'
+  forearms_left: '#f97316',
+  forearms_right: '#84cc16'
 };
 
 export function ProgressChart({ data, selectedMeasurements }: ProgressChartProps) {

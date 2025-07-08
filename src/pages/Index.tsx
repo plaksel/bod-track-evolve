@@ -23,12 +23,15 @@ interface DatabaseMeasurement {
 
 const measurementIcons = {
   chest: <Heart className="h-4 w-4" />,
-  biceps: <Flame className="h-4 w-4" />,
+  biceps_left: <Flame className="h-4 w-4" />,
+  biceps_right: <Flame className="h-4 w-4" />,
   waist: <Target className="h-4 w-4" />,
-  thighs: <Dumbbell className="h-4 w-4" />,
+  thighs_left: <Dumbbell className="h-4 w-4" />,
+  thighs_right: <Dumbbell className="h-4 w-4" />,
   hips: <Activity className="h-4 w-4" />,
   neck: <Ruler className="h-4 w-4" />,
-  forearms: <Zap className="h-4 w-4" />
+  forearms_left: <Zap className="h-4 w-4" />,
+  forearms_right: <Zap className="h-4 w-4" />
 };
 
 const Index = () => {
