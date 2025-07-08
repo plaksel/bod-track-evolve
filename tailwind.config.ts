@@ -52,6 +52,15 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				fitness: {
+					gradient: 'var(--fitness-gradient)',
+					progress: {
+						bg: 'hsl(var(--progress-bg))',
+						fill: 'hsl(var(--progress-fill))'
+					},
+					card: 'hsl(var(--measurement-card))',
+					highlight: 'hsl(var(--stat-highlight))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
