@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { MeasurementCard } from "@/components/MeasurementCard";
 import { AddMeasurementForm } from "@/components/AddMeasurementForm";
 import { ProgressChart } from "@/components/ProgressChart";
 import { MeasurementFilter } from "@/components/MeasurementFilter";
-import { Activity, Ruler, Heart, Zap, Target, Dumbbell, Flame } from "lucide-react";
+import { Activity, Ruler, Heart, Zap, Target, Dumbbell, Flame, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 interface MeasurementEntry {
   id: string;
@@ -36,14 +39,25 @@ const measurementIcons = {
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [measurements, setMeasurements] = useState<MeasurementEntry[]>([]);
   const [selectedMeasurements, setSelectedMeasurements] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
   // Load data from Supabase on mount
   useEffect(() => {
-    loadMeasurements();
-  }, []);
+    if (user) {
+      loadMeasurements();
+    }
+  }, [user]);
 
   const loadMeasurements = async () => {
     try {
@@ -128,7 +142,7 @@ const Index = () => {
         measurement_type: type,
         value: value,
         created_at: measurementDate,
-        user_id: '00000000-0000-0000-0000-000000000000' // Temporary user_id for now
+        user_id: user?.id || ''
       }));
 
       const { error } = await supabase
@@ -223,17 +237,56 @@ const Index = () => {
     new Set(measurements.flatMap(entry => Object.keys(entry.measurements)))
   );
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if not authenticated (will redirect)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-fitness-highlight bg-clip-text text-transparent">
-            Fitness Tracker
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Track your body measurements and visualize your fitness progress over time
-          </p>
+        {/* Header with user info */}
+        <div className="flex justify-between items-start mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-fitness-highlight bg-clip-text text-transparent">
+              Fitness Tracker
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Track your body measurements and visualize your fitness progress over time
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="h-4 w-4" />
+              {user.email}
+            </div>
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {/* Current Measurements Grid */}
