@@ -90,17 +90,29 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
     }));
   };
 
-  const fields = [
+  const singleFields = [
     { key: 'chest' as keyof MeasurementData, label: 'Chest', placeholder: 'e.g., 102.5' },
-    { key: 'biceps_left' as keyof MeasurementData, label: 'Biceps (Left)', placeholder: 'e.g., 38.2' },
-    { key: 'biceps_right' as keyof MeasurementData, label: 'Biceps (Right)', placeholder: 'e.g., 38.2' },
     { key: 'waist' as keyof MeasurementData, label: 'Waist', placeholder: 'e.g., 85.0' },
-    { key: 'thighs_left' as keyof MeasurementData, label: 'Thighs (Left)', placeholder: 'e.g., 62.1' },
-    { key: 'thighs_right' as keyof MeasurementData, label: 'Thighs (Right)', placeholder: 'e.g., 62.1' },
     { key: 'hips' as keyof MeasurementData, label: 'Hips', placeholder: 'e.g., 95.3' },
-    { key: 'neck' as keyof MeasurementData, label: 'Neck', placeholder: 'e.g., 40.2' },
-    { key: 'forearms_left' as keyof MeasurementData, label: 'Forearms (Left)', placeholder: 'e.g., 32.1' },
-    { key: 'forearms_right' as keyof MeasurementData, label: 'Forearms (Right)', placeholder: 'e.g., 32.1' }
+    { key: 'neck' as keyof MeasurementData, label: 'Neck', placeholder: 'e.g., 40.2' }
+  ];
+
+  const pairedFields = [
+    {
+      title: 'Biceps',
+      left: { key: 'biceps_left' as keyof MeasurementData, placeholder: 'e.g., 38.2' },
+      right: { key: 'biceps_right' as keyof MeasurementData, placeholder: 'e.g., 38.2' }
+    },
+    {
+      title: 'Thighs',
+      left: { key: 'thighs_left' as keyof MeasurementData, placeholder: 'e.g., 62.1' },
+      right: { key: 'thighs_right' as keyof MeasurementData, placeholder: 'e.g., 62.1' }
+    },
+    {
+      title: 'Forearms',
+      left: { key: 'forearms_left' as keyof MeasurementData, placeholder: 'e.g., 32.1' },
+      right: { key: 'forearms_right' as keyof MeasurementData, placeholder: 'e.g., 32.1' }
+    }
   ];
 
   return (
@@ -112,9 +124,10 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Single measurements */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map((field) => (
+            {singleFields.map((field) => (
               <div key={field.key} className="space-y-2">
                 <Label htmlFor={field.key} className="text-sm font-medium">
                   {field.label} (cm)
@@ -132,6 +145,45 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
               </div>
             ))}
           </div>
+
+          {/* Paired measurements */}
+          {pairedFields.map((group) => (
+            <div key={group.title} className="space-y-3">
+              <Label className="text-sm font-medium">{group.title} (cm)</Label>
+              <div className="grid grid-cols-2 gap-4 pl-4">
+                <div className="space-y-2">
+                  <Label htmlFor={group.left.key} className="text-xs text-muted-foreground">
+                    Left (cm)
+                  </Label>
+                  <Input
+                    id={group.left.key}
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder={group.left.placeholder}
+                    value={measurements[group.left.key]}
+                    onChange={(e) => handleInputChange(group.left.key, e.target.value)}
+                    className="bg-background/50 border-border/50 focus:border-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={group.right.key} className="text-xs text-muted-foreground">
+                    Right (cm)
+                  </Label>
+                  <Input
+                    id={group.right.key}
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder={group.right.placeholder}
+                    value={measurements[group.right.key]}
+                    onChange={(e) => handleInputChange(group.right.key, e.target.value)}
+                    className="bg-background/50 border-border/50 focus:border-primary"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
           
           <Button 
             type="submit" 
