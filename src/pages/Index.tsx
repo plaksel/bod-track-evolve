@@ -31,10 +31,7 @@ const measurementIcons = {
   waist: <Target className="h-4 w-4" />,
   thighs_left: <Dumbbell className="h-4 w-4" />,
   thighs_right: <Dumbbell className="h-4 w-4" />,
-  hips: <Activity className="h-4 w-4" />,
-  neck: <Ruler className="h-4 w-4" />,
-  forearms_left: <Zap className="h-4 w-4" />,
-  forearms_right: <Zap className="h-4 w-4" />
+  weight: <Activity className="h-4 w-4" />
 };
 
 const Index = () => {
@@ -203,6 +200,39 @@ const Index = () => {
     }
   };
 
+  const handleDeleteEntry = async (entryId: string) => {
+    try {
+      const entryToDelete = measurements.find(entry => entry.id === entryId);
+      if (!entryToDelete) return;
+
+      // Delete all measurements for this entry from Supabase
+      const { error } = await supabase
+        .from('measurements')
+        .delete()
+        .eq('created_at', entryToDelete.date);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
+      setMeasurements(prev => prev.filter(entry => entry.id !== entryId));
+
+      toast({
+        title: "Entry deleted",
+        description: "The measurement entry has been removed.",
+      });
+
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      toast({
+        title: "Error deleting entry",
+        description: "Failed to delete the measurement entry.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleToggleMeasurement = (measurement: string) => {
     setSelectedMeasurements(prev => 
       prev.includes(measurement)
@@ -299,11 +329,13 @@ const Index = () => {
               {Object.entries(latestMeasurements).map(([key, value]) => (
                 <MeasurementCard
                   key={key}
-                  title={key.charAt(0).toUpperCase() + key.slice(1)}
+                  title={key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}
                   value={value}
-                  unit="cm"
+                  unit={key === 'weight' ? 'kg' : 'cm'}
                   change={calculateChange(value, previousMeasurements[key])}
                   icon={measurementIcons[key as keyof typeof measurementIcons]}
+                  date={measurements.length > 0 ? measurements[measurements.length - 1].date : undefined}
+                  onDelete={measurements.length > 0 ? () => handleDeleteEntry(measurements[measurements.length - 1].id) : undefined}
                 />
               ))}
             </div>

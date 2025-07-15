@@ -13,10 +13,7 @@ interface MeasurementData {
   waist: string;
   thighs_left: string;
   thighs_right: string;
-  hips: string;
-  neck: string;
-  forearms_left: string;
-  forearms_right: string;
+  weight: string;
 }
 
 interface AddMeasurementFormProps {
@@ -32,10 +29,7 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
     waist: '',
     thighs_left: '',
     thighs_right: '',
-    hips: '',
-    neck: '',
-    forearms_left: '',
-    forearms_right: ''
+    weight: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,10 +66,7 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
       waist: '',
       thighs_left: '',
       thighs_right: '',
-      hips: '',
-      neck: '',
-      forearms_left: '',
-      forearms_right: ''
+      weight: ''
     });
 
     toast({
@@ -92,10 +83,9 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
   };
 
   const singleFields = [
-    { key: 'chest' as keyof MeasurementData, label: 'Chest', placeholder: 'e.g., 102.5' },
-    { key: 'waist' as keyof MeasurementData, label: 'Waist', placeholder: 'e.g., 85.0' },
-    { key: 'hips' as keyof MeasurementData, label: 'Hips', placeholder: 'e.g., 95.3' },
-    { key: 'neck' as keyof MeasurementData, label: 'Neck', placeholder: 'e.g., 40.2' }
+    { key: 'chest' as keyof MeasurementData, label: 'Chest', placeholder: 'e.g., 102.5', unit: 'cm' },
+    { key: 'waist' as keyof MeasurementData, label: 'Waist', placeholder: 'e.g., 85.0', unit: 'cm' },
+    { key: 'weight' as keyof MeasurementData, label: 'Weight', placeholder: 'e.g., 75.5', unit: 'kg' }
   ];
 
   const pairedFields = [
@@ -108,11 +98,6 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
       title: 'Thighs',
       left: { key: 'thighs_left' as keyof MeasurementData, placeholder: 'e.g., 62.1' },
       right: { key: 'thighs_right' as keyof MeasurementData, placeholder: 'e.g., 62.1' }
-    },
-    {
-      title: 'Forearms',
-      left: { key: 'forearms_left' as keyof MeasurementData, placeholder: 'e.g., 32.1' },
-      right: { key: 'forearms_right' as keyof MeasurementData, placeholder: 'e.g., 32.1' }
     }
   ];
 
@@ -131,7 +116,7 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
             {singleFields.map((field) => (
               <div key={field.key} className="space-y-2">
                 <Label htmlFor={field.key} className="text-sm font-medium">
-                  {field.label} (cm)
+                  {field.label} ({field.unit})
                 </Label>
                 <Input
                   id={field.key}
