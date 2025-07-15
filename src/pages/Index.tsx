@@ -263,6 +263,22 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header with user info */}
+        <div className="flex items-center gap-4 justify-end">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <User className="h-4 w-4" />
+            {user.email}
+          </div>
+          <Button
+            onClick={handleSignOut}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+        </div>
+
         <div className="flex justify-between items-start mb-8">
           <div className="text-center flex-1">
             <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-fitness-highlight bg-clip-text text-transparent">
@@ -272,21 +288,7 @@ const Index = () => {
               Track your body measurements and visualize your fitness progress over time
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="h-4 w-4" />
-              {user.email}
-            </div>
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
-          </div>
+          
         </div>
 
         {/* Current Measurements Grid */}

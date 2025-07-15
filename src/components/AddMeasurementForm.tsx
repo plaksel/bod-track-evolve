@@ -45,6 +45,7 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
     const numericMeasurements: Record<string, number> = {};
     Object.entries(measurements).forEach(([key, value]) => {
       if (value.trim() !== '') {
+        value.replace(/,/g, '.');
         const numValue = parseFloat(value);
         if (!isNaN(numValue) && numValue > 0) {
           numericMeasurements[key] = numValue;
@@ -135,6 +136,8 @@ export function AddMeasurementForm({ onSubmit }: AddMeasurementFormProps) {
                 <Input
                   id={field.key}
                   type="number"
+                  inputMode="decimal"
+                  pattern="[0-9]*"
                   step="0.1"
                   min="0"
                   placeholder={field.placeholder}
