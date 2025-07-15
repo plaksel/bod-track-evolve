@@ -4,6 +4,7 @@ import { MeasurementCard } from "@/components/MeasurementCard";
 import { AddMeasurementForm } from "@/components/AddMeasurementForm";
 import { ProgressChart } from "@/components/ProgressChart";
 import { MeasurementFilter } from "@/components/MeasurementFilter";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { Activity, Ruler, Heart, Zap, Target, Dumbbell, Flame, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -341,6 +342,11 @@ const Index = () => {
             </div>
           </>
         )}
+
+        {/* Notification Settings */}
+        <div className="mb-8">
+          <NotificationSettings />
+        </div>
 
         {/* Add Measurement Form */}
         <div className="mb-8">
